@@ -8,3 +8,4 @@ Codes MSC MMQ Paula Andressa
 - https://www.ibm.com/docs/en/icos/22.1.2?topic=optimization-benders-algorithm
 - https://ibmdecisionoptimization.github.io/docplex-doc/
 - https://pypi.org/project/docplex/
+- https://www.ibm.com/docs/en/icos/22.1.0?topic=users-managing-cplex-parameters-in-python-api
