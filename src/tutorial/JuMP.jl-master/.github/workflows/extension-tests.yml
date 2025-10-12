@@ -1,0 +1,43 @@
+name: extension-tests
+on:
+  workflow_dispatch:
+jobs:
+  test-ubuntu:
+    name: ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE: ${{ matrix.package }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: 'Alpine'
+          - package: 'BilevelJuMP'
+          - package: 'DisjunctiveProgramming'
+          - package: 'InfiniteOpt'
+          - package: 'LinearFractional'
+          - package: 'PiecewiseAffineApprox'
+          - package: 'PiecewiseLinearOpt'
+          - package: 'Plasmo'
+          - package: 'PolyJuMP'
+          - package: 'PowerModels'
+          - package: 'SDDP'
+          - package: 'SetProg'
+          - package: 'SparseVariables'
+          - package: 'SumOfSquares'
+          - package: 'TimeStruct'
+          - package: 'UnitJuMP'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1'
+      - uses: julia-actions/cache@v1
+      - uses: julia-actions/julia-buildpkg@v1
+      - name: Test
+        shell: julia --color=yes {0}
+        run: |
+          import Pkg
+          Pkg.develop(Pkg.PackageSpec(; path = pwd()))
+          Pkg.develop(ENV["PACKAGE"])
+          Pkg.test(ENV["PACKAGE"])

@@ -1,0 +1,21 @@
+#!/bin/bash
+#script para executar instancias cedidas por Sifarelas A.
+#52 periodos, 108 instancias
+
+opt=mip #lp ou mip
+form=std
+instance=sifa
+fatorc=1.5 #1.5 1.75 2.0
+description=${instance}_${form}_${fatorc}_${opt}
+
+echo "instance;objval;bestbound;time;nodes;status" >> table.txt
+for tam in 52
+do
+    for id in {1..1} #$(seq 108)
+    do
+	./out ../../data/sifaleras/${tam}_${id}.txt >> ${tam}_${id}.txt
+	mv ${tam}_${id}.txt report/
+    done
+done
+mv table.txt result/${description}.csv
+

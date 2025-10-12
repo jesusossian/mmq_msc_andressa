@@ -1,0 +1,903 @@
+Sample MPS Input Files
+These are the sample MPS input files that may be used with the sample programs. The files that may be used with a particular sample program are indicated after each program. In addition to these files, there may be additional sample input files distributed with the Optimization Library.
+Basis Data for use with EKKBASI
+Model Data for Linear Programming Problems:
+     LP Data set 1 | LP Data set 2 | LP Data set 3 | LP Data set 4 | LP Data set 5 |
+     LP Data set 6 | LP Data set 7 | LP Data set 8 | LP Data set 9 |
+Model LP Data for Mixed Integer Programming Problems:
+     MIP Data set 1 | MIP Data set 2 |
+Model Data for Quadratic Programming Problems:
+     QP Data set 1 | QP Data set 2 |
+A Spreadsheet Worksheet
+Sample Basis Data 1
+************************************************************************
+*
+*  The data in this file represents a basis for the following problem:
+*
+*  Minimize or maximize Z = x1 + 2x5 - x8
+*
+*  Subject to:
+*
+*  2.5 <=   3x1 +  x2         -  2x4 - x5               -    x8
+*                 2x2 + 1.1x3                                   <= 2.1
+*                          x3              +  x6                 = 4.0
+*  1.8 <=                      2.8x4             -1.2x7         <= 5.0
+*  3.0 <= 5.6x1                      + x5               + 1.9x8 <= 15.
+*
+*  where:
+*
+*  2.5 <= x1
+*    0 <= x2 <= 4.1
+*    0 <= x3
+*    0 <= x4
+*  0.5 <= x5 <= 4.0
+*    0 <= x6
+*    0 <= x7
+*    0 <= x8 <= 4.3
+*
+************************************************************************
+NAME
+ BS ROW01                   5.714286
+ BS ROW02                   0.000000
+ BS ROW05                  14.500000
+ LL COL01                   2.500000
+ LL COL02                   0.000000
+ LL COL03                   0.000000
+ XL COL04     ROW03         0.642857                 4.000000
+ LL COL05                   0.500000
+ XU COL06     ROW04         4.000000                 1.800000
+ LL COL07                   0.000000
+ LL COL08                   0.000000
+ENDATA
+Sample Linear Programming Model Data 1
+************************************************************************
+*
+*  The data in this file represents the following problem:
+*
+*  Minimize or maximize Z = x1 + 2x5 - x8
+*
+*  Subject to:
+*
+*  2.5 <=   3x1 +  x2          - 2x4  - x5              -    x8
+*                 2x2 + 1.1x3                                   <=  2.1
+*                          x3              + x6                  =  4.0
+*  1.8 <=                      2.8x4             -1.2x7         <=  5.0
+*  3.0 <= 5.6x1                       + x5              + 1.9x8 <= 15.0
+*
+*  where:
+*
+*  2.5 <= x1
+*    0 <= x2 <= 4.1
+*    0 <= x3
+*    0 <= x4
+*  0.5 <= x5 <= 4.0
+*    0 <= x6
+*    0 <= x7
+*    0 <= x8 <= 4.3
+*
+************************************************************************
+NAME          EXAMPLE
+ROWS
+ N  OBJ
+ G  ROW01
+ L  ROW02
+ E  ROW03
+ G  ROW04
+ L  ROW05
+COLUMNS
+    COL01     OBJ                1.0
+    COL01     ROW01              3.0   ROW05              5.6
+    COL02     ROW01              1.0   ROW02              2.0
+    COL03     ROW02              1.1   ROW03              1.0
+    COL04     ROW01             -2.0   ROW04              2.8
+    COL05     OBJ                2.0
+    COL05     ROW01             -1.0   ROW05              1.0
+    COL06     ROW03              1.0
+    COL07     ROW04             -1.2
+    COL08     OBJ               -1.0
+    COL08     ROW01             -1.0   ROW05              1.9
+RHS
+    RHS1      ROW01              2.5
+    RHS1      ROW02              2.1
+    RHS1      ROW03              4.0
+    RHS1      ROW04              1.8
+    RHS1      ROW05             15.0
+RANGES
+    RNG1      ROW04              3.2
+    RNG1      ROW05             12.0
+BOUNDS
+ LO BND1      COL01              2.5
+ UP BND1      COL02              4.1
+ LO BND1      COL05              0.5
+ UP BND1      COL05              4.0
+ UP BND1      COL08              4.3
+ENDATA
+Sample Linear Programming Model Data 2
+************************************************************************
+*
+*  The data in this file represents a dummy problem used to set up
+*  storage and pointers for later manipulation.  The problem
+*  consists of one row, one column, and one element.
+*
+************************************************************************
+NAME          DUMMY
+ROWS
+ N  DOBJ
+ G  DROW1
+COLUMNS
+    DCOL1     DOBJ             1.0
+    DCOL1     DROW1            1.0
+ENDATA
+Sample Linear Programming Model Data 3
+************************************************************************
+*
+*  This MPS file is intended for use with the EXDSCM2 and EXINIT sample
+*  programs and contains four small LP models. EXINIT uses only the
+*  first three. EXDSCM2 solves the first three models as minimization
+*  problems and the optimal objective values obtained are used to build
+*  the the objective function of the fourth problem (maximization).
+*
+*  The fourth problem is as follows:
+*
+*  Maximize Z = -(opt. obj. value from 1st problem)*x1 -
+*               (opt. obj. value from 2nd problem)*x2 -
+*               (opt. obj. value from 3rd problem)*x3 +  4.50x4
+*
+*  Subject to:
+*
+*         x1 + x2 + x3  = 12.0
+*  4.0 <=      x2 + x3
+*         x1 +      x3 <=  9.0
+*  2.0 <= x1 + x2 + x3 <=  8.0
+*
+*  where:
+*
+*  0.0 <= x1
+*  0.0 <= x2
+*  0.0 <= x3
+*         x4 = 500.0
+*
+************************************************************************
+NAME          RAW1COST
+ROWS
+ N  COST
+ G  SUP1COST
+ G  SUP2COST
+ G  SUP3COST
+ L  PURITY
+ E  AMOUNT
+COLUMNS
+    SUP1      COST               .20   SUP1COST           .20
+    SUP1      PURITY             .08   AMOUNT            1.00
+    SUP2      COST               .80   SUP2COST           .80
+    SUP2      PURITY             .02   AMOUNT            1.00
+    SUP3      COST               .30   SUP3COST           .30
+    SUP3      PURITY             .04   AMOUNT            1.00
+RHS
+    RHS       SUP1COST         10.00
+    RHS       AMOUNT          200.00   PURITY           10.00
+BOUNDS
+ UP BOUND     SUP2             75.00
+ UP BOUND     SUP3            100.00
+ENDATA
+************************************************************************
+NAME          RAW2COST
+ROWS
+ N  COST
+ G  SUP1COST
+ G  SUP2COST
+ L  PURITY
+ E  AMOUNT
+COLUMNS
+    SUP1      COST              3.60   SUP1COST          3.60
+    SUP1      PURITY             .20   AMOUNT            1.00
+    SUP2      COST              1.20   SUP2COST          1.20
+    SUP2      PURITY             .40   AMOUNT            1.00
+RHS
+    RHS       AMOUNT          100.00   PURITY           35.00
+ENDATA
+************************************************************************
+NAME          RAW3COST
+ROWS
+ N  COST
+ G  SUP1COST
+ G  SUP2COST
+ L  PURITY
+ E  AMOUNT
+COLUMNS
+    SUP1      COST              1.40   SUP1COST          1.40
+    SUP1      PURITY             .01   AMOUNT            1.00
+    SUP2      COST               .70   SUP2COST           .70
+    SUP2      PURITY             .07   AMOUNT            1.00
+RHS
+    RHS       AMOUNT          250.00   PURITY           12.50
+BOUNDS
+ UP BOUND     SUP2            150.00
+ENDATA
+************************************************************************
+NAME          PROFITS
+ROWS
+ N  PROFIT
+ E  AMOUNT1
+ G  AMOUNT2
+ L  AMOUNT3
+ L  AMOUNT4
+COLUMNS
+    RAW1      AMOUNT1           1.00
+    RAW1      AMOUNT3           1.00   AMOUNT4           1.00
+    RAW2      AMOUNT1           1.00
+    RAW2      AMOUNT2           1.00   AMOUNT4           1.00
+    RAW3      AMOUNT1           1.00
+    RAW3      AMOUNT2           1.00   AMOUNT3           1.00
+    PRODUCT   PROFIT            4.50
+RHS
+    RHS       AMOUNT1          12.00   AMOUNT2           4.00
+    RHS       AMOUNT3           9.00   AMOUNT4           8.00
+RANGES
+    RANGE     AMOUNT4           6.00
+BOUNDS
+ FX BOUND     PRODUCT         500.00
+ENDATA
+Sample Linear Programming Model Data 4
+************************************************************************
+*
+*  The data in this file represents the following problem:
+*
+*  Minimize or maximize Z = x1 + 2x2 + x3
+*
+*  Subject to:
+*
+*   2.0 <=   x1 +  x2         <= 4.0
+*   0.0 <=      -  x2  +  x3  <= 0.0
+*  -3.0 <=  -x1        -  x3  <=-3.0
+*
+*  where:
+*
+*   0.0 <= x1 <= 1.0
+*   0.0 <= x2
+*   0.0 <= x3
+*
+************************************************************************
+NAME          NEXAMPLE
+ROWS
+ N  OBJ
+ G  ROW01
+ E  ROW02
+ E  ROW03
+COLUMNS
+    COL01     OBJ                1.0
+    COL01     ROW01              1.0   ROW03             -1.0
+    COL02     OBJ                2.0   ROW01              1.0
+    COL02     ROW02             -1.0
+    COL03     OBJ                1.0   ROW02              1.0
+    COL03     ROW03             -1.0
+RHS
+    RHS1      ROW01              2.0
+    RHS1      ROW03             -3.0
+RANGES
+    RNG1      ROW01              2.0
+BOUNDS
+ UP BND1      COL01              1.0
+ENDATA
+Sample Linear Programming Model Data 5
+*************************************************************************
+*
+*  The data in this file represents the following problem:
+*
+*  Minimize or maximize Z = (.03 + .09*lambda)x1 + .08x2 +
+*                           (.17 + .25*lambda)x3 + .12x4 +
+*                            .15x5 + .21x6 + .38x7
+*
+*  Subject to:
+*
+*            x1 +    x2 +    x3 +    x4 +    x5 +    x6 +    x7  = 2000.0
+*         .15x1 + .04x2 + .02x3 + .04x4 + .02x5 + .01x6 + .07x7 <=   60.0
+*         .02x1 + .04x2 + .01x3 + .02x4 + .02x5                 <=   40.0
+*   a <=  .03x1 + .05x2 + .08x3 + .02x4 + .06x5 + .01x6         <=    b
+*         .02x1 + .03x2                 + .01x5                 <=   30.0
+* 1500.0<=.30x1 + .75x2 + .80x3 + .75x4 + .80x5 + .97x6
+*   c <=  .50x1 + .06x2 + .08x3 + .12x4 + .02x5 + .01x6 + .97x7 <=    d
+*
+*
+*  where:
+*
+*  a = ((100.0 +  60.0*lambda) - (100.0 +  40.0*lambda))
+*    = (   0.0 +  20.0*lambda)
+*  b = ( 100.0 +  60.0*lambda)
+*  c = ( 300.0 + 100.0*lambda)
+*  d = ((300.0 +  30.0*lambda) + ( 50.0 + 100.0*lambda))
+*    = ( 350.0 + 130.0*lambda)
+*
+*    0.0 <= x1 <=  200.0
+*    0.0 <= x2 <=  750.0
+*  400.0 <= x3 <=  800.0
+*  100.0 <= x4 <= (700.0  +  200.0*lambda)
+*    0.0 <= x5 <= (1500.0 + 1800.0*lambda)
+*    0.0 <= x6
+*    0.0 <= x7
+*
+*  The parametric change vectors are named as follows:
+*
+*  CHANGOBJ (objective function)
+*  CHANGRHS (right-hand side)
+*  CHANGRNG (ranges)
+*  CHANGBND (bounds)
+*
+*  If parametrics are not used, the linear problem is as above with
+*  lambda set to zero.
+*
+*************************************************************************
+NAME          SPMETALS
+ROWS
+ N  VALUE
+ N  CHANGOBJ
+ E  YIELD
+ L  FE
+ L  MN
+ L  CU
+ L  MG
+ G  AL
+ G  SI
+COLUMNS
+    BIN1      VALUE             .03    YIELD         1.00
+    BIN1      FE                .15    MN             .02
+    BIN1      CU                .03    MG             .02
+    BIN1      AL                .30    SI              .5
+    BIN1      CHANGOBJ          .09
+    BIN2      VALUE             .08    YIELD         1.00
+    BIN2      FE                .04    MN             .04
+    BIN2      CU                .05    MG             .03
+    BIN2      AL                .75    SI             .06
+    BIN3      VALUE             .17    YIELD         1.00
+    BIN3      FE                .02    MN             .01
+    BIN3      CU                .08    AL             .80
+    BIN3      SI                .08
+    BIN3      CHANGOBJ          .25
+    BIN4      VALUE             .12    YIELD         1.00
+    BIN4      FE                .04    MN             .02
+    BIN4      CU                .02    AL             .75
+    BIN4      SI                .12
+    BIN5      VALUE             .15    YIELD         1.00
+    BIN5      FE                .02    MN             .02
+    BIN5      CU                .06    MG             .01
+    BIN5      AL                .80    SI             .02
+    ALUM      VALUE             .21    YIELD         1.00
+    ALUM      FE                .01    CU             .01
+    ALUM      AL                .97    SI             .01
+    SILICON   VALUE             .38    YIELD         1.00
+    SILICON   FE                .03    SI             .97
+RHS
+    RHS       YIELD           2000.    FE             60.
+    RHS       CU               100.    MN             40.
+    RHS       MG                30.    AL            1500.
+    RHS       SI               300.
+    CHANGRHS  SI               100.
+    CHANGRHS  CU                60.
+RANGES
+    RNG       SI                50.
+    CHANGRNG  SI                30.
+    CHANGRNG  CU                40.
+BOUNDS
+ UP BNN       BIN1            200.
+ UP BNN       BIN2            750.
+ LO BNN       BIN3            400.
+ UP BNN       BIN3            800.
+ LO BNN       BIN4            100.
+ UP BNN       BIN4            700.
+ UP BNN       BIN5            1500.
+ UP CHANGBND  BIN4            200.
+ UP CHANGBND  BIN5            1800.
+ENDATA
+Sample Linear Programming Model Data 6
+************************************************************************
+*
+*  This MPS file may be used as input data for the EXLPDC and EXLPDC2
+*  sample programs. The matrix has 3 blocks and a coupling row. Although
+*  designed for EXLPDC and EXLPDC2, this file can be used by any LP
+*  driver that requires an input file in MPS format.
+*
+************************************************************************
+NAME          LPDCMP1
+ROWS
+ N  OBJCTV01
+ E  B0101
+ E  B0102
+ E  B0103
+ E  B0104
+ E  B0205
+ E  B0206
+ E  B0207
+ E  B0208
+ E  B0309
+ E  B0310
+ E  B0311
+ E  B0312
+ L  CPL13
+COLUMNS
+    X00       OBJCTV01      1.000000   B0102         1.000000
+    X00       B0101        -1.000000
+    X01       OBJCTV01      2.000000   B0104         1.000000
+    X01       B0101        -1.000000   CPL13         1.000000
+    X02       OBJCTV01      3.000000   B0102         1.000000
+    X02       B0103        -1.000000
+    X03       OBJCTV01      4.200000   B0104         1.000000
+    X03       B0103        -1.000000
+    X04       OBJCTV01      5.000000   B0104         1.000000
+    X04       B0102        -1.000000
+    X05       OBJCTV01      6.200000   B0102         1.000000
+    X05       B0104        -1.000000
+    X06       OBJCTV01      5.000000   B0101         1.000000
+    X06       B0102        -1.000000
+    X07       OBJCTV01      6.200000   B0103         1.000000
+    X07       B0104        -1.000000
+    X10       OBJCTV01      1.000000   B0206         1.000000
+    X10       B0205        -1.000000
+    X11       OBJCTV01      2.000000   B0208         1.000000
+    X11       B0205        -1.000000   CPL13         1.000000
+    X12       OBJCTV01      3.000000   B0206         1.000000
+    X12       B0207        -1.000000
+    X13       OBJCTV01      4.200000   B0208         1.000000
+    X13       B0207        -1.000000
+    X14       OBJCTV01      5.000000   B0208         1.000000
+    X14       B0206        -1.000000
+    X15       OBJCTV01      6.200000   B0206         1.000000
+    X15       B0208        -1.000000
+    X16       OBJCTV01      5.000000   B0205         1.000000
+    X16       B0206        -1.000000
+    X17       OBJCTV01      6.200000   B0207         1.000000
+    X17       B0208        -1.000000
+    X20       OBJCTV01      1.000000   B0310         1.000000
+    X20       B0309        -1.000000
+    X21       OBJCTV01      2.000000   B0312         1.000000
+    X21       B0309        -1.000000   CPL13         1.000000
+    X22       OBJCTV01      3.000000   B0310         1.000000
+    X22       B0311        -1.000000
+    X23       OBJCTV01      4.200000   B0312         1.000000
+    X23       B0311        -1.000000
+    X24       OBJCTV01      5.000000   B0312         1.000000
+    X24       B0310        -1.000000
+    X25       OBJCTV01      6.200000   B0310         1.000000
+    X25       B0312        -1.000000
+    X26       OBJCTV01      5.000000   B0309         1.000000
+    X26       B0310        -1.000000
+    X27       OBJCTV01      6.200000   B0311         1.000000
+    X27       B0312        -1.000000
+RHS
+    RHS001    B0101        -1.000000   B0102         1.000000
+    RHS001    B0103        -1.000000   B0104         1.000000
+    RHS001    B0205        -1.000000   B0206         1.000000
+    RHS001    B0207        -2.000000   B0208         2.000000
+    RHS001    B0309        -1.000000   B0310         1.000000
+    RHS001    B0311        -3.000000   B0312         3.000000
+    RHS001    CPL13         1.000000
+ENDATA
+Sample Linear Programming Model Data 7
+************************************************************************
+*
+*  The data in this file represents the following problem:
+*
+*  Minimize or maximize Z = x1 + x3 + 2x5 - x8
+*
+*  Subject to:
+*
+*  2.5 <=   3x1 +  x2         -  2x4  - x5             -    x8
+*                 2x2 + 1.1x3                                  <=  2.1
+*                          x3              + x6                 =  4.0
+*  1.8 <=                      2.8x4            -1.2x7         <=  5.0
+*  3.0 <= 5.6x1                       + x5             + 1.9x8 <= 15.0
+*
+*  where:
+*
+*  2.5 <= x1
+*    0 <= x2 <= 4.1
+*    0 <= x3
+*    0 <= x4
+*  0.5 <= x5 <= 4.0
+*    0 <= x6
+*    0 <= x7
+*    0 <= x8 <= 4.3
+*
+*********************************************************************
+NAME          EXLP7
+ROWS
+ N  OBJ
+ G  GUB01
+ L  ROW02
+ E  ROW03
+ G  ROW04
+ L  ROW05
+COLUMNS
+    COL01     OBJ                1.0
+    COL01     GUB01              3.0   ROW05              5.6
+    COL02     GUB01              1.0   ROW02              2.0
+    COL03     OBJ                1.0
+    COL03     ROW02              1.1   ROW03              1.0
+    COL04     GUB01             -2.0   ROW04              2.8
+    COL05     OBJ                2.0
+    COL05     GUB01             -1.0   ROW05              1.0
+    COL06     ROW03              1.0
+    COL07     ROW04             -1.2
+    COL08     OBJ               -1.0
+    COL08     GUB01             -1.0   ROW05              1.9
+RHS
+    RHS1      GUB01              2.5
+    RHS1      ROW02              2.1
+    RHS1      ROW03              4.0
+    RHS1      ROW04              1.8
+    RHS1      ROW05             15.0
+RANGES
+    RNG1      ROW04              3.2
+    RNG1      ROW05             12.0
+BOUNDS
+ LO BND1      COL01              2.5
+ UP BND1      COL02              4.1
+ LO BND1      COL05              0.5
+ UP BND1      COL05              4.0
+ UP BND1      COL08              4.3
+ENDATA
+Sample Linear Programming Model Data 8
+************************************************************************
+*
+*  The data in this file represents the following problem:
+*
+*  Minimize or maximize Z = x1 + 2x5 - x8
+*
+*  Subject to:
+*
+*  2.5 <=   3x1 +  x2          - 2x4  - x5              -    x8
+*                 2x2 + 1.1x3                                   <=  2.1
+*                          x3              + x6                  =  4.0
+*  1.8 <=                      2.8x4             -1.2x7         <=  5.0
+*  3.0 <= 5.6x1                       + x5              + 1.9x8 <= 15.0
+*
+*  where:
+*
+*  2.5 <= x1
+*    0 <= x2 <= 4.1
+*    0 <= x3
+*    0 <= x4
+*  0.5 <= x5 <= 4.0
+*    0 <= x6
+*    0 <= x7
+*    0 <= x8 <= 4.3
+*
+*  The problem is then revised in the following way:
+*
+*  1) Since ROW04 will have a bound changed, it is declared in the
+*     ROW MODIFY section with its type unchanged.
+*  2) The cost of COL01 is changed to 2.0.
+*  3) COL07 is deleted.
+*  4) A new column, COL77, is added to the problem.  It has a coefficient
+*     of -1.5 in ROW04.
+*  5) The lower bound of ROW04 is changed to 0.8.
+*  6) The lower bound of COL77 is changed to 1.0.
+*
+************************************************************************
+NAME          EXAMPLE
+ROWS
+ N  OBJ
+ G  ROW01
+ L  ROW02
+ E  ROW03
+ G  ROW04
+ L  ROW05
+COLUMNS
+    COL01     OBJ                1.0
+    COL01     ROW01              3.0   ROW05              5.6
+    COL02     ROW01              1.0   ROW02              2.0
+    COL03     ROW02              1.1   ROW03              1.0
+    COL04     ROW01             -2.0   ROW04              2.8
+    COL05     OBJ                2.0
+    COL05     ROW01             -1.0   ROW05              1.0
+    COL06     ROW03              1.0
+    COL07     ROW04             -1.2
+    COL08     OBJ               -1.0
+    COL08     ROW01             -1.0   ROW05              1.9
+RHS
+    RHS1      ROW01              2.5
+    RHS1      ROW02              2.1
+    RHS1      ROW03              4.0
+    RHS1      ROW04              1.8
+    RHS1      ROW05             15.0
+RANGES
+    RNG1      ROW04              3.2
+    RNG1      ROW05             12.0
+BOUNDS
+ LO BND1      COL01              2.5
+ UP BND1      COL02              4.1
+ LO BND1      COL05              0.5
+ UP BND1      COL05              4.0
+ UP BND1      COL08              4.3
+ENDATA
+NAME          EXAMPLE
+ROWS
+MODIFY
+ G  ROW04
+COLUMNS
+MODIFY
+    COL01     OBJ                2.0
+DELETE
+    COL07
+AFTER         COL06
+    COL77     ROW04             -1.5
+RHS
+MODIFY
+    RHS1      ROW04              0.8
+BOUNDS
+MODIFY
+ LO BND1      COL77              1.0
+ENDATA
+Sample Linear Programming Model Data 9
+************************************************************************
+*
+*  The data in this file represents the following problem:
+*
+*  Minimize or maximize
+*
+*      Z = -40C1      - 50c2    - 50c3    - 40c4
+*        + 1/2(80c1c1 + 80c1c4  + 100c2c3 + 100c2c2
+*        + 100c3c3    + 100c3c2 + 80c4c1  + 80c4c4)
+*
+*
+*  Subject to:
+*
+*                           c1 + c2           = 1
+*                                     c3 + c4 = 1
+*                           c1      + c3      = 1
+*                                c2      + c4 = 1
+*
+*  where:                   0 <= c1,c2,c3,c4 <= 1
+*                             c1,c2,c3,c4 integer
+*
+*
+************************************************************************
+NAME
+ROWS
+ N  OBJECTRW
+ E  R0000001
+ E  R0000002
+ E  R0000003
+ E  R0000004
+COLUMNS
+    C0000001  OBJECTRW  -0040.000000   R0000001      1.000000
+    C0000001  R0000003      1.000000
+    C0000002  OBJECTRW  -0050.000000   R0000001      1.000000
+    C0000002  R0000004      1.000000
+    C0000003  OBJECTRW  -0050.000000   R0000002      1.000000
+    C0000003  R0000003      1.000000
+    C0000004  OBJECTRW  -0040.000000   R0000002      1.000000
+    C0000004  R0000004      1.000000
+RHS
+    RHS1      R0000001      1.000000   R0000002      1.000000
+    RHS1      R0000003      1.000000   R0000004      1.000000
+BOUNDS
+ BV BOUND1    C0000001      1.000000
+ BV BOUND1    C0000002      1.000000
+ BV BOUND1    C0000003      1.000000
+ BV BOUND1    C0000004      1.000000
+ENDATA
+Sample Mixed Integer Programming Model Data 1
+************************************************************************
+*
+*  The data in this file represents the following problem:
+*
+*  Minimize or maximize Z = x1 + 2x5 - x8
+*
+*  Subject to:
+*
+*  2.5 <=   3x1 +  x2         -  2x4 - x5               -    x8
+*                 2x2 + 1.1x3                                   <=  2.1
+*                          x3              +  x6                 =  4.0
+*  1.8 <=                      2.8x4             -1.2x7         <=  5.0
+*  3.0 <= 5.6x1                      + x5               + 1.9x8 <= 15.0
+*
+*  where:
+*
+*  2.5 <= x1
+*    0 <= x2 <= 4.1
+*    0 <= x3
+*    0 <= x4
+*  0.5 <= x5 <= 4.0
+*    0 <= x6
+*    0 <= x7
+*    0 <= x8 <= 4.3
+*
+*  x3, x4 are 0,1 variables.
+*
+************************************************************************
+NAME          EXAMPLE
+ROWS
+ N  OBJ
+ G  ROW01
+ L  ROW02
+ E  ROW03
+ G  ROW04
+ L  ROW05
+COLUMNS
+    COL01     OBJ                1.0
+    COL01     ROW01              3.0   ROW05              5.6
+    COL02     ROW01              1.0   ROW02              2.0
+*
+*  Mark COL03 and COL04 as integer variables.
+*
+    INT1      'MARKER'                 'INTORG'
+    COL03     ROW02              1.1   ROW03              1.0
+    COL04     ROW01             -2.0   ROW04              2.8
+    INT1END   'MARKER'                 'INTEND'
+*
+    COL05     OBJ                2.0
+    COL05     ROW01             -1.0   ROW05              1.0
+    COL06     ROW03              1.0
+    COL07     ROW04             -1.2
+    COL08     OBJ               -1.0
+    COL08     ROW01             -1.0   ROW05              1.9
+RHS
+    RHS1      ROW01              2.5
+    RHS1      ROW02              2.1
+    RHS1      ROW03              4.0
+    RHS1      ROW04              1.8
+    RHS1      ROW05             15.0
+RANGES
+    RNG1      ROW04              3.2
+    RNG1      ROW05             12.0
+BOUNDS
+ LO BND1      COL01              2.5
+ UP BND1      COL02              4.1
+ LO BND1      COL05              0.5
+ UP BND1      COL05              4.0
+ UP BND1      COL08              4.3
+ENDATA
+Sample Mixed Integer Programming Model Data 2
+************************************************************************
+*
+*  The data in this file represents the following pure integer problem:
+*
+*  Minimize or maximize
+*
+*  Z =    28x11 +  84x12 + 112x13 + 112x14 +  60x21 +  20x22
+*      +  50x23 +  50x24 +  96x31 +  60x32 +  24x33 +  60x34
+*      +  64x41 +  40x42 +  40x43 +  16x44 +  50y1  +  50y2
+*      +  50y3  +  50y4
+*
+*  Subject to:
+*
+*        x11 + x12 + x13 + x14       = 1
+*        x21 + x22 + x23 + x24       = 1
+*        x31 + x32 + x33 + x34       = 1
+*        x41 + x42 + x43 + x44       = 1
+*  0 <= -x11 - x21 - x31 - x41 + 4y1
+*  0 <= -x12 - x22 - x32 - x42 + 4y2
+*  0 <= -x13 - x23 - x33 - x43 + 4y3
+*  0 <= -x14 - x24 - x34 - x44 + 4y4
+*
+*  All xij and yj are 0,1 variables.
+*
+*  NOTE: There are 20 columns in the constraint matrix.
+*  The list of variables and corresponding variable numbers:
+*
+*  x11 is #1   x12 is #2   x13 is #3    x14 is #4    y1  is #17
+*  x21 is #5   x22 is #6   x23 is #7    x24 is #8    y2  is #18
+*  x31 is #9   x32 is #10  x33 is #11   x34 is #12   y3  is #19
+*  x41 is #13  x42 is #14  x43 is #15   x44 is #16   y4  is #20
+*
+*  Optimal solution for the minimization problem:
+*  Z = 242; y1=1, y3=1, x11=1, x23=1, x33=1, x43=1
+*
+************************************************************************
+NAME          EXMIP2
+ROWS
+ N  OBJECTRW
+ E  R0000001
+ E  R0000002
+ E  R0000003
+ E  R0000004
+ G  R0000005
+ G  R0000006
+ G  R0000007
+ G  R0000008
+COLUMNS
+    INT1      'MARKER'                 'INTORG'
+    C0000001  OBJECTRW     28.000000   R0000001      1.000000
+    C0000001  R0000005     -1.000000
+    C0000002  OBJECTRW     84.000000   R0000001      1.000000
+    C0000002  R0000006     -1.000000
+    C0000003  OBJECTRW    112.000000   R0000001      1.000000
+    C0000003  R0000007     -1.000000
+    C0000004  OBJECTRW    112.000000   R0000001      1.000000
+    C0000004  R0000008     -1.000000
+    C0000005  OBJECTRW     60.000000   R0000002      1.000000
+    C0000005  R0000005     -1.000000
+    C0000006  OBJECTRW     20.000000   R0000002      1.000000
+    C0000006  R0000006     -1.000000
+    C0000007  OBJECTRW     50.000000   R0000002      1.000000
+    C0000007  R0000007     -1.000000
+    C0000008  OBJECTRW     50.000000   R0000002      1.000000
+    C0000008  R0000008     -1.000000
+    C0000009  OBJECTRW     96.000000   R0000003      1.000000
+    C0000009  R0000005     -1.000000
+    C0000010  OBJECTRW     60.000000   R0000003      1.000000
+    C0000010  R0000006     -1.000000
+    C0000011  OBJECTRW     24.000000   R0000003      1.000000
+    C0000011  R0000007     -1.000000
+    C0000012  OBJECTRW     60.000000   R0000003      1.000000
+    C0000012  R0000008     -1.000000
+    C0000013  OBJECTRW     64.000000   R0000004      1.000000
+    C0000013  R0000005     -1.000000
+    C0000014  OBJECTRW     40.000000   R0000004      1.000000
+    C0000014  R0000006     -1.000000
+    C0000015  OBJECTRW     40.000000   R0000004      1.000000
+    C0000015  R0000007     -1.000000
+    C0000016  OBJECTRW     16.000000   R0000004      1.000000
+    C0000016  R0000008     -1.000000
+    C0000017  OBJECTRW     50.000000   R0000005      4.000000
+    C0000018  OBJECTRW     50.000000   R0000006      4.000000
+    C0000019  OBJECTRW     50.000000   R0000007      4.000000
+    C0000020  OBJECTRW     50.000000   R0000008      4.000000
+    INT1END   'MARKER'                 'INTEND'
+RHS
+    RHS1      R0000001      1.000000   R0000002      1.000000
+    RHS1      R0000003      1.000000   R0000004      1.000000
+ENDATA
+Sample Quadratic Programming Model Data 1
+************************************************************************
+*
+*  The data in this file represents the quadratic matrix for
+*  the following problem:
+*
+*  Minimize Z = x1 + 2x5 - x8 +
+*               1/2(x1**2 + x2**2 + x3**2 + x4**2 +
+*                   x5**2 + x6**2 + x7**2 + x8**2)
+*
+*  where the linear part of the problem is in "Sample Linear Programming
+*  Model Data 1".
+*
+************************************************************************
+NAME          EXAMPLE
+QSECTION
+    COL01     COL01       1.0000D+00
+    COL02     COL02       1.0000D+00
+    COL03     COL03       1.0000D+00
+    COL04     COL04       1.0000D+00
+    COL05     COL05       1.0000D+00
+    COL06     COL06       1.0000D+00
+    COL07     COL07       1.0000D+00
+    COL08     COL08       1.0000D+00
+ENDATA
+Sample Quadratic Programming Model Data 2
+************************************************************************
+*
+*  The data in this file represents the following problem:
+*
+*  Minimize or maximize
+*
+*      Z = -40C1      - 50c2    - 50c3    - 40c4
+*        + 1/2(80c1c1 + 80c1c4  + 100c2c3 + 100c2c2
+*        + 100c3c3    + 100c3c2 + 80c4c1  + 80c4c4)
+*
+*
+*  Subject to:
+*
+*                           c1 + c2           = 1
+*                                     c3 + c4 = 1
+*                           c1      + c3      = 1
+*                                c2      + c4 = 1
+*
+*  where:                   0 <= c1,c2,c3,c4 <= 1
+*                             c1,c2,c3,c4 integer
+*
+*
+************************************************************************
+NAME
+QSECTION
+    C0000001  C0000001     80.000000   C0000004     80.000000
+    C0000001  C0000002     00.000000   C0000003     00.000000
+    C0000002  C0000001     00.000000   C0000003    100.000000
+    C0000002  C0000002    100.000000   C0000004     00.000000
+    C0000003  C0000003    100.000000   C0000001     00.000000
+    C0000003  C0000004     00.000000   C0000002    100.000000
+    C0000004  C0000001     80.000000   C0000002     00.000000
+    C0000004  C0000004     80.000000   C0000003     00.000000
+ENDATA
+Sample Spreadsheet Worksheet File 1
+This file is not in a printable format, but it is included with the modules available from the www for use with spreadsheet sample programs. 
+[ Top of Page | Previous Page | Next Page | Table of Contents ]

@@ -1,0 +1,692 @@
+#  Copyright 2017, Iain Dunning, Joey Huchette, Miles Lubin, and contributors
+#  This Source Code Form is subject to the terms of the Mozilla Public
+#  License, v. 2.0. If a copy of the MPL was not distributed with this
+#  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#############################################################################
+# JuMP
+# An algebraic modeling language for Julia
+# See https://github.com/jump-dev/JuMP.jl
+#############################################################################
+
+module TestExpr
+
+using JuMP
+using Test
+
+import LinearAlgebra
+import SparseArrays
+
+const MA = JuMP._MA
+
+include(joinpath(@__DIR__, "utilities.jl"))
+
+# For "expression^3 and unary*"
+struct PowVariable <: AbstractVariableRef
+    pow::Int
+end
+
+Base.:^(x::PowVariable, i::Int) = PowVariable(x.pow * i)
+
+Base.:*(x::PowVariable, y::PowVariable) = PowVariable(x.pow + y.pow)
+
+Base.copy(x::PowVariable) = x
+
+function test_extension_isequal_GenericAffExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x)
+    @test isequal(x + 1, x + 1)
+    return
+end
+
+function test_extension_hash_GenericAffExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x)
+    @test hash(x + 1) == hash(x + 1)
+    return
+end
+
+function test_extension_drop_zeros!_GenericAffExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x[1:2])
+    expr = x[1] + x[2] - x[2] + 1
+    @test !isequal(expr, x[1] + 1)
+    drop_zeros!(expr)
+    @test isequal(expr, x[1] + 1)
+    return
+end
+
+function test_extension_iszero_GenericAffExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x)
+    @test !iszero(x + 1)
+    @test !iszero(x + 0)
+    @test iszero(0 * x + 0)
+    @test iszero(x - x)
+    return
+end
+
+function test_extension_isequal_GenericQuadExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x)
+    @test isequal(x^2 + 1, x^2 + 1)
+    return
+end
+
+function test_extension_hash_GenericQuadExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x)
+    @test hash(x^2 + 1) == hash(x^2 + 1)
+    return
+end
+
+function test_extension_drop_zeros!_GenericQuadExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x[1:2])
+    expr = x[1]^2 + x[2]^2 - x[2]^2 + x[1] + x[2] - x[2] + 1
+    @test !isequal(expr, x[1]^2 + x[1] + 1)
+    drop_zeros!(expr)
+    @test isequal(expr, x[1]^2 + x[1] + 1)
+    return
+end
+
+function test_extension_iszero_GenericQuadExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x)
+    @test !iszero(x^2 + 1)
+    @test !iszero(x^2 + 0)
+    @test !iszero(x^2 + 0 * x + 0)
+    @test iszero(0 * x^2 + 0 * x + 0)
+    @test iszero(x^2 - x^2)
+    return
+end
+
+function test_value_GenericAffExpr()
+    expr1 = GenericAffExpr(3.0, 3 => -5.0, 2 => 4.0)
+    @test @inferred(value(-, expr1)) == 10.0
+    expr2 = GenericAffExpr{Int,Int}(2)
+    @test typeof(@inferred(value(i -> 1.0, expr2))) == Float64
+    @test @inferred(value(i -> 1.0, expr2)) == 2.0
+    return
+end
+
+function test_value_GenericQuadExpr()
+    # 1 + 2x(1) + 3x(2)
+    affine_term = GenericAffExpr(1.0, 1 => 2.0, 2 => 3.0)
+    # 1 + 2x(1) + 3x(2) + 4x(1)^2 + 5x(1)*x(2) + 6x(2)^2
+    expr = GenericQuadExpr(
+        affine_term,
+        UnorderedPair(1, 1) => 4.0,
+        UnorderedPair(1, 2) => 5.0,
+        UnorderedPair(2, 2) => 6.0,
+    )
+    @test typeof(@inferred(value(i -> 1.0, expr))) == Float64
+    @test @inferred(value(i -> 1.0, expr)) == 21
+    @test @inferred(value(i -> 2.0, expr)) == 71
+    return
+end
+
+function test_add_to_expression_GenericAffExpr_V()
+    aff = GenericAffExpr(1.0, :a => 2.0)
+    @test isequal_canonical(
+        add_to_expression!(aff, :b),
+        GenericAffExpr(1.0, :a => 2.0, :b => 1.0),
+    )
+    return
+end
+
+function test_add_to_expression_GenericAffExpr_C()
+    aff = GenericAffExpr(1.0, :a => 2.0)
+    @test isequal_canonical(
+        add_to_expression!(aff, 1.0),
+        GenericAffExpr(2.0, :a => 2.0),
+    )
+    return
+end
+
+function test_extension_linear_terms_AffExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    @variable(m, x[1:10])
+
+    aff = 1 * x[1] + 2 * x[2]
+    k = 0
+    @test length(linear_terms(aff)) == 2
+    for (coeff, var) in linear_terms(aff)
+        if k == 0
+            @test coeff == 1
+            @test var === x[1]
+        elseif k == 1
+            @test coeff == 2
+            @test var === x[2]
+        end
+        k += 1
+    end
+    @test k == 2
+    return
+end
+
+function test_extension_linear_terms_empty_AffExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    T = value_type(ModelType)
+    k = 0
+    aff = zero(GenericAffExpr{T,VariableRefType})
+    @test length(linear_terms(aff)) == 0
+    for (coeff, var) in linear_terms(aff)
+        k += 1
+    end
+    @test k == 0
+    return
+end
+
+function test_extension_coefficient_AffExpr_VariableRefType(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    x = @variable(m, x)
+    y = @variable(m, y)
+    aff = @expression(m, 1.0 * x)
+    @test coefficient(aff, x) == 1.0
+    @test coefficient(aff, y) == 0.0
+    return
+end
+
+function test_extension_coefficient_AffExpr_VariableRefType_VariableRefType(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    m = ModelType()
+    x = @variable(m, x)
+    aff = @expression(m, 1.0 * x)
+    @test coefficient(aff, x, x) == 0.0
+    return
+end
+
+function test_extension_coefficient_QuadExpr_VariableRefType(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    T = value_type(ModelType)
+    m = ModelType()
+    x = @variable(m, x)
+    y = @variable(m, y)
+    z = @variable(m, z)
+    quad = @expression(m, T(6) * x^2 + T(5) * x * y + T(2) * y + T(3) * x)
+    @test coefficient(quad, x) == T(3)
+    @test coefficient(quad, y) == T(2)
+    @test coefficient(quad, z) == T(0)
+    return
+end
+
+function test_extension_coefficient_QuadExpr_VariableRefType_VariableRefType(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    T = value_type(ModelType)
+    m = ModelType()
+    x = @variable(m, x)
+    y = @variable(m, y)
+    z = @variable(m, z)
+    quad = @expression(m, T(6) * x^2 + T(5) * x * y + T(2) * y + T(3) * x)
+    @test coefficient(quad, x, y) == T(5)
+    @test coefficient(quad, x, x) == T(6)
+    @test coefficient(quad, x, y) == coefficient(quad, y, x)
+    @test coefficient(quad, z, z) == T(0)
+    return
+end
+
+function test_extension_MA_add_mul(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    T = value_type(ModelType)
+    model = ModelType()
+    @variable(model, x)
+    @variable(model, y)
+    # MA.add_mul!!(ex::Number, c::Number, x::GenericAffExpr)
+    aff = MA.add_mul!!(1, 2, GenericAffExpr(T(1), x => T(1)))
+    @test isequal_canonical(aff, GenericAffExpr(T(3), x => T(2)))
+    # MA.add_mul!!(ex::Number, c::Number, x::GenericQuadExpr) with c == 0
+    QuadExprType = GenericQuadExpr{T,VariableRefType}
+    quad = MA.add_mul!!(2, 0, QuadExprType())
+    @test isequal_canonical(quad, convert(QuadExprType, 2))
+    # MA.add_mul!!(ex::Number, c::VariableRef, x::VariableRef)"
+    @test_expression_with_string MA.add_mul(5, x, y) "x*y + 5"
+    @test_expression_with_string MA.add_mul!!(5, x, y) "x*y + 5"
+    # MA.add_mul!!(ex::Number, c::T, x::T) where T<:GenericAffExpr" begin
+    @test_expression_with_string MA.add_mul(1, 2x, x + 1) "2 x² + 2 x + 1"
+    @test_expression_with_string MA.add_mul!!(1, 2x, x + 1) "2 x² + 2 x + 1"
+    # MA.add_mul!!(ex::Number, c::GenericAffExpr{C,V}, x::V) where {C,V}" begin
+    @test_expression_with_string MA.add_mul(1, 2x, x) "2 x² + 1"
+    @test_expression_with_string MA.add_mul!!(1, 2x, x) "2 x² + 1"
+    # MA.add_mul!!(ex::Number, c::GenericQuadExpr, x::Number)" begin
+    @test_expression_with_string MA.add_mul(0, x^2, 1) "x²"
+    @test_expression_with_string MA.add_mul!!(0, x^2, 1) "x²"
+    # MA.add_mul!!(ex::Number, c::GenericQuadExpr, x::Number) with c == 0" begin
+    @test_expression_with_string MA.add_mul(0, x^2, 0) "0"
+    @test_expression_with_string MA.add_mul!!(0, x^2, 0) "0"
+    # MA.add_mul!!(aff::AffExpr,c::VariableRef,x::AffExpr)" begin
+    @test_expression_with_string MA.add_mul(2x, x, x + 1) "x² + 3 x"
+    @test_expression_with_string MA.add_mul!!(2x, x, x + 1) "x² + 3 x"
+    # MA.add_mul!!(aff::GenericAffExpr{C,V},c::GenericAffExpr{C,V},x::Number) where {C,V}" begin
+    @test_expression_with_string MA.add_mul(2x, x, 1) "3 x"
+    @test_expression_with_string MA.add_mul!!(2x, x, 1) "3 x"
+    # MA.add_mul!!(aff::GenericAffExpr{C,V}, c::GenericQuadExpr{C,V}, x::Number) where {C,V}" begin
+    @test_expression_with_string MA.add_mul(2x, x^2, 1) "x² + 2 x"
+    @test_expression_with_string MA.add_mul!!(2x, x^2, 1) "x² + 2 x"
+    # MA.add_mul!!(aff::GenericAffExpr{C,V}, c::GenericQuadExpr{C,V}, x::Number) where {C,V} with x == 0" begin
+    @test_expression_with_string MA.add_mul(2x, x^2, 0) "2 x"
+    @test_expression_with_string MA.add_mul!!(2x, x^2, 0) "2 x"
+    # MA.add_mul!!(aff::GenericAffExpr{C,V}, c::Number, x::GenericQuadExpr{C,V}) where {C,V} with c == 0" begin
+    @test_expression_with_string MA.add_mul(2x, 0, x^2) "2 x"
+    @test_expression_with_string MA.add_mul!!(2x, 0, x^2) "2 x"
+    # MA.add_mul!!(ex::GenericAffExpr{C,V}, c::GenericAffExpr{C,V}, x::GenericAffExpr{C,V}) where {C,V}" begin
+    @test_expression_with_string MA.add_mul(2x, x + 1, x + 0) "x² + 3 x"
+    @test_expression_with_string MA.add_mul!!(2x, x + 1, x + 0) "x² + 3 x"
+    # MA.add_mul!!(quad::GenericQuadExpr{C,V},c::GenericAffExpr{C,V},x::Number) where {C,V}" begin
+    @test_expression_with_string MA.add_mul(x^2, x + 1, 1) "x² + x + 1"
+    @test_expression_with_string MA.add_mul!!(x^2, x + 1, 1) "x² + x + 1"
+    # MA.add_mul!!(quad::GenericQuadExpr{C,V},c::V,x::GenericAffExpr{C,V}) where {C,V}" begin
+    @test_expression_with_string MA.add_mul(x^2, x, x + 1) "2 x² + x"
+    @test_expression_with_string MA.add_mul!!(x^2, x, x + 1) "2 x² + x"
+    # MA.add_mul!!(quad::GenericQuadExpr{C,V},c::GenericQuadExpr{C,V},x::Number) where {C,V}" begin
+    @test_expression_with_string MA.add_mul(x^2 + x, x^2 + x, 2.0) "3 x² + 3 x"
+    @test_expression_with_string MA.add_mul!!(x^2 + x, x^2 + x, 2.0) "3 x² + 3 x"
+    # MA.add_mul!!(ex::GenericQuadExpr{C,V}, c::GenericAffExpr{C,V}, x::GenericAffExpr{C,V}) where {C,V}" begin
+    @test_expression_with_string MA.add_mul(x^2 + x, x + 0, x + 1) "2 x² + 2 x"
+    @test_expression_with_string MA.add_mul!!(x^2 + x, x + 0, x + 1) "2 x² + 2 x"
+    return
+end
+
+function test_extension_unary_plus_AffExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    model = ModelType()
+    @variable(model, x)
+    @test_expression_with_string (+)(x + 1) "x + 1"
+    return
+end
+
+function test_extension_unary_plus_QuadExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    model = ModelType()
+    @variable(model, x)
+    @test_expression_with_string (+)(x^2 + 1) "x² + 1"
+    return
+end
+
+function test_extension_sum_VectorVariableRef(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    model = ModelType()
+    @variable(model, x[1:2])
+    @test_expression_with_string sum(x) "x[1] + x[2]"
+    return
+end
+
+function test_extension_expression_cubed(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    model = ModelType()
+    x = PowVariable(1)
+    # Calls (*)((x*x)^6)
+    y = @expression model (x * x)^3
+    @test y.pow == 6
+    z = @inferred (x * x)^3
+    @test z.pow == 6
+    return
+end
+
+function test_extension_ndims_QuadExpr(
+    ModelType = Model,
+    VariableRefType = VariableRef,
+)
+    model = ModelType()
+    @variable(model, x)
+    @test ndims(x^2 + 1) == 0
+    return
+end
+
+function test_equal_0()
+    model = Model()
+    @variable(model, x)
+    @test x + 0.0 != 0.0
+    @test AffExpr(0.0) == 0.0
+    @test AffExpr(1.0) == 1.0
+    @test QuadExpr(AffExpr(0.0)) == 0.0
+    @test QuadExpr(AffExpr(1.0)) == 1.0
+    @test x^2 + 0.0 != 0.0
+    return
+end
+
+function test_issue_2309()
+    model = Model()
+    @variable(model, x[1:10])
+    I = SparseArrays.sparse(LinearAlgebra.Diagonal(ones(10)))
+    A = I + LinearAlgebra.Diagonal(x)
+    @test A isa SparseArrays.SparseMatrixCSC
+    @test SparseArrays.nnz(A) == 10
+    return
+end
+
+function test_eltype_QuadTermIterator()
+    model = Model()
+    @variable(model, x[1:2])
+    y = x[1]^2 + x[2]^2
+    iterator = quad_terms(y)
+    @test eltype(iterator) == Tuple{Float64,VariableRef,VariableRef}
+    return
+end
+
+function test_GenericQuadExpr_constructor()
+    model = Model()
+    @variable(model, x[1:2])
+    y = 1 * x[1] + 2 * x[2] + 3 * x[1]^2 + 4 * x[2]^2
+    map_coefficients_inplace!(c -> 2c, y)
+    @test y == 2 * x[1] + 4 * x[2] + 6 * x[1]^2 + 8 * x[2]^2
+    return
+end
+
+function test_GenericQuadExpr_map_coefficients_inplace!()
+    model = Model()
+    @variable(model, x[1:2])
+    y = 1 * x[1] + 2 * x[2] + 3 * x[1]^2 + 4 * x[2]^2
+    map_coefficients_inplace!(c -> 2c, y)
+    @test y == 2 * x[1] + 4 * x[2] + 6 * x[1]^2 + 8 * x[2]^2
+    return
+end
+
+function test_expression_ambiguities()
+    # These tests use expressions with unusual key types so that we can test
+    # the fallback methods needed to avoid method ambiguities.
+    model = Model()
+    quad = GenericQuadExpr{Int,Int}()
+    aff = GenericAffExpr{Int,Int}(0, 1 => 1)
+    @test add_to_expression!(quad, aff, 1) isa GenericQuadExpr
+    @test quad == GenericQuadExpr{Int,Int}(aff)
+    quad = GenericQuadExpr{Int,Int}()
+    @test add_to_expression!(quad, 0, 0) isa GenericQuadExpr
+    @variable(model, x)
+    @test add_to_expression!(x + 1.0, 1.0, 2) isa GenericAffExpr
+    @test add_to_expression!(x^2, 1.0, 2) isa GenericQuadExpr
+    return
+end
+
+function test_quadexpr_owner_model()
+    quad = GenericQuadExpr{Int,Int}()
+    @test owner_model(quad) === nothing
+    return
+end
+
+function test_aff_expr_complex_lower_bound()
+    model = Model()
+    @variable(model, x in ComplexPlane())
+    y = real(x)
+    @test !has_lower_bound(y)
+    set_lower_bound(y, 1)
+    @test has_lower_bound(y)
+    @test lower_bound(y) == 1
+    delete_lower_bound(y)
+    @test !has_lower_bound(y)
+    return
+end
+
+function test_aff_expr_complex_upper_bound()
+    model = Model()
+    @variable(model, x in ComplexPlane())
+    y = real(x)
+    @test !has_upper_bound(y)
+    set_upper_bound(y, 1)
+    @test has_upper_bound(y)
+    @test upper_bound(y) == 1
+    delete_upper_bound(y)
+    @test !has_upper_bound(y)
+    return
+end
+
+function test_aff_expr_complex_start_value()
+    model = Model()
+    @variable(model, x in ComplexPlane())
+    y = real(x)
+    @test start_value(y) === nothing
+    set_start_value(y, 1)
+    @test start_value(y) == 1
+    return
+end
+
+function test_aff_expr_complex_HermitianPSDCone()
+    model = Model()
+    @variable(model, x[1:2, 1:2] in HermitianPSDCone())
+    @test start_value(x[1, 1]) === nothing
+    set_lower_bound(x[1, 1], 2.5)
+    @test has_lower_bound(x[1, 1])
+    @test lower_bound(x[1, 1]) == 2.5
+    @test_throws(
+        ErrorException(
+            "Cannot call $start_value with $(x[2, 1]) because it is not an affine " *
+            "expression of one variable.",
+        ),
+        start_value(x[2, 1]),
+    )
+    @test_throws(
+        ErrorException(
+            "Cannot call $start_value with $(imag(x[2, 1])) because the " *
+            "variable has a coefficient that is different to `+1`.",
+        ),
+        start_value(imag(x[2, 1])),
+    )
+    y = AffExpr(0.0)
+    @test_throws(
+        ErrorException(
+            "Cannot call $start_value with $y because it is not an affine " *
+            "expression of one variable.",
+        ),
+        start_value(y),
+    )
+    return
+end
+
+function test_multiply_expr_MA_Zero()
+    model = Model()
+    @variable(model, x)
+    for f in (x, x^2, sin(x))
+        @test @expression(model, f * sum(x for i in 1:0)) == 0.0
+        @test @expression(model, sum(x for i in 1:0) * f) == 0.0
+        @test @expression(model, -f * sum(x for i in 1:0)) == 0.0
+        @test @expression(model, sum(x for i in 1:0) * -f) == 0.0
+        @test @expression(model, (f + f) * sum(x for i in 1:0)) == 0.0
+        @test @expression(model, sum(x for i in 1:0) * (f + f)) == 0.0
+
+        @test isequal_canonical(@expression(model, f + sum(x for i in 1:0)), f)
+        @test isequal_canonical(@expression(model, sum(x for i in 1:0) + f), f)
+        @test isequal_canonical(
+            @expression(model, -f + sum(x for i in 1:0)),
+            -1.0 * f,  # Needed for f = sin(x)
+        )
+        @test isequal_canonical(
+            @expression(model, sum(x for i in 1:0) + -f),
+            -1.0 * f,  # Needed for f = sin(x)
+        )
+        @test isequal_canonical(
+            @expression(model, (f + f) + sum(x for i in 1:0)),
+            f + f,
+        )
+        @test isequal_canonical(
+            @expression(model, sum(x for i in 1:0) + (f + f)),
+            f + f,
+        )
+    end
+    return
+end
+
+function test_aff_expr_constructors()
+    model = Model()
+    @variable(model, x)
+    y = 3.0 * x + 1.0
+    @test isequal_canonical(AffExpr(1.0, x => 1.0, x => 2.0), y)
+    @test isequal_canonical(GenericAffExpr(1.0, [x => 1.0, x => 2.0]), y)
+    @test isequal_canonical(AffExpr(2 // 2, x => 1.0, x => 2.0), y)
+    @test isequal_canonical(AffExpr(2 // 2, [x => 1.0, x => 2.0]), y)
+    return
+end
+
+function test_LinearTermIterator_eltype()
+    model = Model()
+    @variable(model, x)
+    y = 3.0 * x + 1.0
+    @test eltype(linear_terms(y)) == Tuple{Float64,VariableRef}
+    return
+end
+
+function test_issue_3982()
+    a = [(1.0+2.0*im) (3.0+4.0*im); (5.0+6.0*im) (7.0+8.0*im)]
+    model = Model()
+    @variable(model, x[1:2, 1:2])
+    @expression(model, y, (1 * x) * a)
+    z = [
+        (1 + 2im) * x[1, 1] + (5 + 6im) * x[1, 2],
+        (1 + 2im) * x[2, 1] + (5 + 6im) * x[2, 2],
+        (3 + 4im) * x[1, 1] + (7 + 8im) * x[1, 2],
+        (3 + 4im) * x[2, 1] + (7 + 8im) * x[2, 2],
+    ]
+    @test isequal_canonical(y, reshape(z, 2, 2))
+    return
+end
+
+function test_issue_3982_core()
+    model = Model()
+    @variable(model, x)
+    aff = (1.0 + 2.0im) * x + 3.0 * im
+    add_to_expression!(aff, 4.0 * x + 5.0, 6.0 + 7.0im)
+    @test isequal_canonical(aff, (25.0 + 30.0 * im) * x + 30 + 38.0 * im)
+    return
+end
+
+function test_value_type()
+    for T in (Int, Float64, BigFloat)
+        model = GenericModel{T}()
+        @variable(model, x)
+        @test value_type(T) == T
+        @test value_type(typeof(model)) == T
+        @test value_type(typeof(x)) == T
+        @test value_type(typeof(one(T) * x)) == T
+        @test value_type(typeof(one(T) * x * x)) == T
+        @test value_type(typeof(log(x))) == T
+    end
+    T = Symbol
+    @test_throws(
+        ErrorException(
+            "Unable to compute the `value_type($T)`. If you are developing a " *
+            "JuMP extension, define a new method for `JuMP.value_type(::Type{$T})`",
+        ),
+        value_type(T),
+    )
+    return
+end
+
+function test_issue_4048()
+    for (T, C, S) in Any[
+        (Float64, Float64, Float64),
+        (Float64, Int, Float64),
+        (Int, Float64, Float64),
+        (Int, Float32, Float32),
+        (Float32, Int32, Float32),
+        (Float64, ComplexF64, ComplexF64),
+        (Float64, ComplexF32, ComplexF64),
+    ]
+        model = GenericModel{T}()
+        @variable(model, x)
+        # ScalarAffineFunction
+        f = one(C) * index(x) + one(C)
+        @test f isa MOI.ScalarAffineFunction{C}
+        g = jump_function(model, f)
+        @test g isa GenericAffExpr{S}
+        h = GenericAffExpr{S,typeof(x)}(one(S), x => one(S))
+        @test isequal_canonical(g, h)
+        @test jump_function_type(model, typeof(f)) == typeof(g)
+        # ScalarQuadraticFunction
+        # We can't do `one(T) * index(x) * index(x)` because of a bug in MOI:
+        # https://github.com/jump-dev/MathOptInterface.jl/pull/2807
+        f = MOI.ScalarQuadraticFunction{C}(
+            [MOI.ScalarQuadraticTerm{C}(C(2), index(x), index(x))],
+            MOI.ScalarAffineTerm{C}[],
+            one(C),
+        )
+        @test f isa MOI.ScalarQuadraticFunction{C}
+        g = jump_function(model, f)
+        @test g isa GenericQuadExpr{S}
+        a = GenericAffExpr{S,typeof(x)}(one(S))
+        h = GenericQuadExpr{S,typeof(x)}(a, UnorderedPair(x, x) => one(S))
+        @test isequal_canonical(g, h)
+        @test jump_function_type(model, typeof(f)) == typeof(g)
+        # VectorAffineFunction
+        f = MOI.Utilities.vectorize([one(C) * index(x) + one(C)])
+        @test f isa MOI.VectorAffineFunction{C}
+        g = jump_function(model, f)
+        @test g isa Vector{<:GenericAffExpr{S}}
+        h = [GenericAffExpr{S,typeof(x)}(one(S), x => one(S))]
+        @test isequal_canonical(g, h)
+        @test jump_function_type(model, typeof(f)) == typeof(g)
+        # VectorQuadraticFunction
+        # We can't do `one(T) * index(x) * index(x)` because of a bug in MOI:
+        # https://github.com/jump-dev/MathOptInterface.jl/pull/2807
+        f = MOI.ScalarQuadraticFunction{C}(
+            [MOI.ScalarQuadraticTerm{C}(C(2), index(x), index(x))],
+            MOI.ScalarAffineTerm{C}[],
+            one(C),
+        )
+        f = MOI.Utilities.vectorize([f])
+        @test f isa MOI.VectorQuadraticFunction{C}
+        g = jump_function(model, f)
+        @test g isa Vector{<:GenericQuadExpr{S}}
+        a = GenericAffExpr{S,typeof(x)}(one(S))
+        h = GenericQuadExpr{S,typeof(x)}(a, UnorderedPair(x, x) => one(S))
+        @test isequal_canonical(g, [h])
+        @test jump_function_type(model, typeof(f)) == typeof(g)
+    end
+    return
+end
+
+function test_issue_4049()
+    model = Model()
+    A = [1, 2, 3]
+    @variable(model, x[A])
+    y = @expression(model, sum(x[A] for a in A))
+    @test isequal_canonical(y, 3x)
+    return
+end
+
+end  # TestExpr

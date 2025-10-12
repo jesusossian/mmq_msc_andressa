@@ -1,0 +1,63 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+      - release-*
+  pull_request:
+    types: [opened, synchronize, reopened]
+# needed to allow julia-actions/cache to delete old caches that it has created
+permissions:
+  actions: write
+  contents: read
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Since JuMP doesn't have binary dependencies, only test on a subset of
+        # possible platforms.
+        include:
+          - version: '1'  # The latest point-release (Linux)
+            os: ubuntu-latest
+            arch: x64
+          - version: '1'  # The latest point-release (Windows)
+            os: windows-latest
+            arch: x64
+          - version: '1.6'  # 1.6 LTS (64-bit Linux)
+            os: ubuntu-latest
+            arch: x64
+          - version: '1.6'  # 1.6 LTS (32-bit Linux)
+            os: ubuntu-latest
+            arch: x86
+          - version: 'nightly'
+            os: ubuntu-latest
+            arch: x64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/julia-runtest@v1
+        #with:
+        #  depwarn: error # Had to disable it because DataStructures does
+        #    1 dependency had output during precompilation:
+        # ┌ DataStructures
+        # │  WARNING: DataStructures.DisjointSets is deprecated, use DisjointSet instead.
+        # │    likely near /home/blegat/.julia/dev/DataStructures/src/deprecations.jl:9
+        # │  WARNING: DataStructures.DisjointSets is deprecated, use DisjointSet instead.
+        # │    likely near /home/blegat/.julia/dev/DataStructures/src/deprecations.jl:9
+        # │  WARNING: DataStructures.DisjointSets is deprecated, use DisjointSet instead.
+        # │    likely near /home/blegat/.julia/dev/DataStructures/src/deprecations.jl:9
+        # └
+        # No idea why, try enabling it back later
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v4
+        with:
+          file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}

@@ -1,0 +1,40 @@
+name = "JuMP"
+uuid = "4076af6c-e467-56ae-b986-b466b2749572"
+repo = "https://github.com/jump-dev/JuMP.jl.git"
+version = "1.29.1"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
+MutableArithmetics = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
+OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+
+[weakdeps]
+DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
+
+[extensions]
+JuMPDimensionalDataExt = "DimensionalData"
+
+[compat]
+DimensionalData = "0.24, 0.25, 0.26.2, 0.27, 0.28, 0.29"
+LinearAlgebra = "<0.0.1, 1.6"
+MacroTools = "0.5"
+MathOptInterface = "1.38.0"
+MutableArithmetics = "1.6"
+OrderedCollections = "1"
+Printf = "<0.0.1, 1.6"
+PrecompileTools = "1"
+SparseArrays = "<0.0.1, 1.6"
+Test = "<0.0.1, 1.6"
+julia = "1.6"
+
+[extras]
+DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["DimensionalData", "Test"]
