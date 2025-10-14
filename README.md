@@ -16,3 +16,4 @@ MSC MMQ Paula Andressa repository
 - https://support.gurobi.com/hc/en-us/community/posts/22123322679313-Differance-between-MIPSOL-and-MIPNODE
 - https://arthur.maheo.net/a-short-introduction-to-benders/
 - https://support.gurobi.com/hc/en-us/articles/360044290292-How-do-I-install-Gurobi-for-Python
+- https://jump.dev/JuMP.jl/stable/tutorials/algorithms/benders_decomposition/
