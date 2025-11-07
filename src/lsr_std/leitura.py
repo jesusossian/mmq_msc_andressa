@@ -14,11 +14,8 @@ def leitura_instance(file_name):
 
 	D_ = [int(i) for i in arq.readline().split()]
 	R_ = [int(i) for i in arq.readline().split()]
-	C = float(arq.readline().rstrip('\n'))
 
-	#PP = [0]*N
 	PP = np.zeros(N)
-	#PR  = [0]*N
 	PR = np.zeros(N)
 	
 	FP = np.zeros(N)
@@ -48,4 +45,4 @@ def leitura_instance(file_name):
 	for  i in range(N):
 		R[i] = R_[i]
 
-	return N, PP, PR, FP, FR, HP, HR, D, R, C
+	return N, PP, PR, FP, FR, HP, HR, D, R

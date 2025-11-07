@@ -5,14 +5,14 @@ import numpy as np
 MAX_CPU_TIME = 3600.0
 EPSILON = 1e-6
 
-def relax_fix(partp, partr, yp_sol , yr_sol, N, PP, PR, FP, FR, HP, HR, D, R, SD, SR, C):
+def relax_fix(partp, partr, yp_sol , yr_sol, N, PP, PR, FP, FR, HP, HR, D, R, SD, SR):
 
 	yp_val = np.zeros(N)
 	yr_val = np.zeros(N)
 
 	try:
 		# create model
-		model = gp.Model("clsr")
+		model = gp.Model("lsr_rf")
 
 		# create variables
 		xp = model.addVars(list(range(N)), lb=0.0, ub=float('inf'), vtype=GRB.CONTINUOUS, name="xp")
@@ -70,20 +70,18 @@ def relax_fix(partp, partr, yp_sol , yr_sol, N, PP, PR, FP, FR, HP, HR, D, R, SD
 		
 		model.addConstrs(sr[i-1] + R[i] - xr[i] - sr[i] == 0 for i in range(N) if i > 0)
 		
-		model.addConstrs(xp[i] - yp[i]*min(C,SD[i][N-1]) <= 0 for i in range(N))
+		model.addConstrs(xp[i] - yp[i]*SD[i][N-1] <= 0 for i in range(N))
 		
 		model.addConstrs(xr[i] - yr[i]*min(SR[0][i], SD[i][N-1]) <= 0 for i in range(N))
-		
-		model.addConstrs(xp[i] + xr[i] <= C for i in range(N))
-		
-		#model.write(file_name+".lp")
+				
+		#model.write("instance.lp")
 
 		# Parameters 
 		model.setParam(GRB.Param.TimeLimit, MAX_CPU_TIME)
 		model.setParam(GRB.Param.MIPGap, EPSILON)
 		model.setParam(GRB.Param.Threads,1)
-		#model.setParam(GRB.Param.Cuts,-1)
-		#model.setParam(GRB.Param.Presolve,-1)
+		model.setParam(GRB.Param.Cuts,0)
+		model.setParam(GRB.Param.Presolve,0)
 
 		# Optimize model
 		model.optimize()

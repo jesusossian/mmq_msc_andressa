@@ -17,3 +17,6 @@ MSC MMQ Paula Andressa repository
 - https://arthur.maheo.net/a-short-introduction-to-benders/
 - https://support.gurobi.com/hc/en-us/articles/360044290292-How-do-I-install-Gurobi-for-Python
 - https://jump.dev/JuMP.jl/stable/tutorials/algorithms/benders_decomposition/
+
+## Repositorio Andressa
+https://drive.google.com/drive/folders/1tbpYhQttDiTJtV8yR8_FdTEzvkTrKckD
