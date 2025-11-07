@@ -35,7 +35,7 @@ def main():
 			SR[i][j] = SR[i][j-1] + R[j]
 	
 	objval, objbound, mgap, rtime, ncount, tmp = opt.lsr_std_mip(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR)
-	arquivo = open(os.path.join(result_path,'lsr_std_mip_first_feasible_tlimited_mean.txt'),'a')
+	arquivo = open(os.path.join(result_path,'lsr_std_mip.txt'),'a')
 	arquivo.write(file_name+';'
 	 	+str(round(objval,2))+';'
 	 	+str(round(objbound,2))+';'

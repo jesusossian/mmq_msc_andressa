@@ -4,7 +4,7 @@ import numpy as np
 
 #max 2.71
 #mean 1.05
-MAX_CPU_TIME = 1.05
+MAX_CPU_TIME = 3600
 EPSILON = 1e-6
 
 def lsr_std_math_mip(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR, yp_sol, yr_sol):
@@ -15,7 +15,7 @@ def lsr_std_math_mip(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR, yp_sol, yr_sol):
 	try:
 
 		# create model
-		model = gp.Model("lsr_std_math")
+		model = gp.Model("lsr_std_math_mip")
 
 		# create variables
 		xp = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="xp")
