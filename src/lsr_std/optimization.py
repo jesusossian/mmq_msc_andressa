@@ -56,8 +56,8 @@ def lsr_std_math_mip(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR, yp_sol, yr_sol):
 		model.setParam(GRB.Param.TimeLimit, MAX_CPU_TIME)
 		model.setParam(GRB.Param.MIPGap, EPSILON)
 		model.setParam(GRB.Param.Threads,1)
-		model.setParam(GRB.Param.Cuts, 0)
-		model.setParam(GRB.Param.Presolve,0)
+		#model.setParam(GRB.Param.Cuts, 0)
+		#model.setParam(GRB.Param.Presolve,0)
 
 		# relax model
 		#for v in model.getVars():
@@ -198,8 +198,8 @@ def lsr_std_lp(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR):
 		model.setParam(GRB.Param.TimeLimit, MAX_CPU_TIME)
 		model.setParam(GRB.Param.MIPGap, EPSILON)
 		model.setParam(GRB.Param.Threads, 1)
-		model.setParam(GRB.Param.Cuts, 0)
-		model.setParam(GRB.Param.Presolve, 0)
+		#model.setParam(GRB.Param.Cuts, 0)
+		#model.setParam(GRB.Param.Presolve, 0)
 
 		# optimize model
 		model.optimize()
