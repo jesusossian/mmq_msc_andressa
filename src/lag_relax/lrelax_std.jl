@@ -9,10 +9,10 @@ fp = 0.2
 fr = 1.0
 
 # Reading demand data
-d, header = readdlm("demand.csv", ',', header=true)
+d, header = readdlm("demand_52_1.csv", ',', header=true)
 
 # Reading return data
-r, header = readdlm("return.csv", ',', header=true)
+r, header = readdlm("return_52_1.csv", ',', header=true)
 
 n = length(d)
 
@@ -115,7 +115,7 @@ function lower_bound()
     @variable(model, 0 <= sr[t=1:n] <= Inf)
   
     @objective(model, Min, 
-        sum((cp + lambdap[t])*xp[t] + hp*sp[t] + (fp - lambdap[t]*SD[t,n] )*yp[t] for t=1:n) 
+        sum((cp + lambdap[t])*xp[t] + hp*sp[t] + (fp - lambdap[t]*SD[t,n])*yp[t] for t=1:n) 
         + sum(cr*xr[t] + hr*sr[t] + fr*yr[t] for t=1:n)
     )
 
@@ -384,14 +384,14 @@ function lagrangian_relaxation()
       push!(LB, Z_D)
 
       # subgradiente
-      for t=1:n
-          gradp[t] = xp_best[t] - SD[t,n]*yp_best[t]
+      for i=1:n
+          gradp[i] = xp_best[i] - SD[i,n]*yp_best[i]
       end
 
       # Qgrad
       Qgrad = 0
-      for t=1:n
-          Qgrad += gradp[t] * gradp[t]
+      for i=1:n
+          Qgrad += gradp[i] * gradp[i]
       end
 
       # Determining the step size and updating the multiplier
@@ -399,8 +399,9 @@ function lagrangian_relaxation()
       t = theta * (Z_UB - Z_D) / Qgrad
       println("Qgrad = $Qgrad, Z_UB = $Z_UB, Z_D = $Z_D, t = $t")
 
-      for t=1:n
-          lambdap = max(0,t*gradp[t])
+      # updated langrangean
+      for i=1:n
+          lambdap[i] = max(0,t*gradp[i])
       end
 
       # Computing the optimality gap
