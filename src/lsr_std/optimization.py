@@ -124,8 +124,8 @@ def lsr_std_mip(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR):
 		model.setParam(GRB.Param.TimeLimit, MAX_CPU_TIME)
 		model.setParam(GRB.Param.MIPGap, EPSILON)
 		model.setParam(GRB.Param.Threads, 1)
-		model.setParam(GRB.Param.Cuts, 0)
-		model.setParam(GRB.Param.Presolve, 0)
+		#model.setParam(GRB.Param.Cuts, 0)
+		#model.setParam(GRB.Param.Presolve, 0)
 		#model.setParam(GRB.Param.SolutionLimit, 1)
 
 		# optimize model
