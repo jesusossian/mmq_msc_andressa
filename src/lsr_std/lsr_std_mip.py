@@ -33,18 +33,18 @@ def main():
 		for j in range(i+1, N):
 			SD[i][j] = SD[i][j-1] + D[j]
 			SR[i][j] = SR[i][j-1] + R[j]
-	
+		
 	objval, objbound, mgap, rtime, ncount, tmp = opt.lsr_std_mip(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR)
-	arquivo = open(os.path.join(result_path,'lsr_std_mip.txt'),'a')
-	arquivo.write(file_name+';'
-	 	+str(round(objval,2))+';'
-	 	+str(round(objbound,2))+';'
-	 	+str(round(mgap,2))+';'
-	 	+str(round(rtime,2))+';'
-	 	+str(round(ncount,2))+';'
-	 	+str(round(tmp,2))
-	 	+'\n')
-	arquivo.close()
+	#arquivo = open(os.path.join(result_path,'lsr_std_mip.txt'),'a')
+	#arquivo.write(file_name+';'
+	# 	+str(round(objval,2))+';'
+	# 	+str(round(objbound,2))+';'
+	# 	+str(round(mgap,2))+';'
+	# 	+str(round(rtime,2))+';'
+	# 	+str(round(ncount,2))+';'
+	# 	+str(round(tmp,2))
+	# 	+'\n')
+	#arquivo.close()
 
 if __name__== "__main__" :
 	main()
