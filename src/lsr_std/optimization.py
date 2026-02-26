@@ -4,6 +4,7 @@ import numpy as np
 
 #max 2.71
 #mean 1.05
+
 MAX_CPU_TIME = 3600
 EPSILON = 1e-6
 
@@ -149,7 +150,7 @@ def lsr_std_mip(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR):
 
 	except gp.GurobiError as e:
 		print('Error code ' + str(e.errno) + ': ' + str(e))
-
+			
 	return objval, objbound, mipgap, runtime, nodecount, tmp
 
 
