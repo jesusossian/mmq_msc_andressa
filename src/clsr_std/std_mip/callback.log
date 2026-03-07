@@ -1,0 +1,50 @@
+Gurobi Optimizer version 12.0.1 build v12.0.1rc0 (linux64 - "Ubuntu 22.04.5 LTS")
+
+CPU model: Intel(R) Core(TM) i5-1035G1 CPU @ 1.00GHz, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 4 physical cores, 8 logical processors, using up to 1 threads
+
+Non-default parameters:
+TimeLimit  3600
+MIPGap  1e-06
+Heuristics  0
+LogToConsole  0
+Threads  1
+OutputFlag  0
+
+Optimize a model with 260 rows, 312 columns and 674 nonzeros
+Model fingerprint: 0x6f2e1d9f
+Variable types: 208 continuous, 104 integer (104 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+02]
+  Objective range  [2e-01, 2e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e+01, 2e+02]
+Presolve removed 5 rows and 5 columns
+Presolve time: 0.00s
+Presolved: 255 rows, 307 columns, 667 nonzeros
+Variable types: 204 continuous, 103 integer (103 binary)
+
+Root relaxation: objective 6.418663e+03, 225 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 6418.66273    0   95          - 6418.66273      -     -    0s
+H    0     0                    19558.400000 8607.99743  56.0%     -    0s
+     0     0 8607.99743    0   95 19558.4000 8607.99743  56.0%     -    0s
+
+Cutting planes:
+  Cover: 1
+  Implied bound: 49
+  Flow cover: 51
+  Flow path: 1
+
+Explored 1 nodes (351 simplex iterations) in 0.01 seconds (0.01 work units)
+Thread count was 1 (of 8 available processors)
+
+Solution count 1: 19558.4 
+
+Solve interrupted
+Best objective 1.955840000000e+04, best bound 8.620234882840e+03, gap 55.9257%
+
+User-callback calls 459, time in user-callback 0.00 sec
