@@ -90,12 +90,19 @@ def lsr_std_mip(N, PP, PR, FP, FR, HP, HR, D, R, SD, SR):
 		model = gp.Model("lsr_std_mip")
 
 		# create variables
-		xp = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="xp")
+		#xp = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="xp")
+		#xr = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="xr")
+		xp = model.addVars(list(range(N)), vtype=GRB.INTEGER, name="xp") # integer version
+		xr = model.addVars(list(range(N)), vtype=GRB.INTEGER, name="xr") # integer version
+
+		#sp = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="sp")		
+		#sr = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="sr")
+		sp = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="sp")	# integer version
+		sr = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="sr") # integer version
+
+		
 		yp = model.addVars(list(range(N)), vtype=GRB.BINARY, name="yp")
-		sp = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="sp")
-		xr = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="xr")
 		yr = model.addVars(list(range(N)), vtype=GRB.BINARY, name="yr")
-		sr = model.addVars(list(range(N)), vtype=GRB.CONTINUOUS, name="sr")
 		
 		model.update()
 
